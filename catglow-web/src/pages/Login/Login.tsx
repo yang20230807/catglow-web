@@ -1,12 +1,13 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useUserStore } from '../../store';
 import { userApi } from '../../api/user';
-import { Eye, EyeOff, LogIn } from 'lucide-react';
+import { Eye, EyeOff, LogIn, CheckCircle } from 'lucide-react';
 
 export const Login = () => {
   const navigate = useNavigate();
   const setUser = useUserStore((state) => state.setUser);
+  const isLoggedIn = useUserStore((state) => state.isLoggedIn);
   
   const [isLogin, setIsLogin] = useState(true);
   const [username, setUsername] = useState('');
@@ -15,21 +16,36 @@ export const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+
+  // 如果已经登录，直接跳转
+  useEffect(() => {
+    if (isLoggedIn) {
+      navigate('/profile');
+    }
+  }, [isLoggedIn, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setSuccess('');
     setLoading(true);
 
     try {
       let user;
       if (isLogin) {
         user = await userApi.login(username, password);
+        setSuccess('登录成功！正在跳转...');
       } else {
         user = await userApi.register(username, password, nickname || undefined);
+        setSuccess('注册成功！正在跳转...');
       }
       setUser(user);
-      navigate('/');
+      
+      // 3秒后跳转
+      setTimeout(() => {
+        navigate('/profile');
+      }, 3000);
     } catch (err: any) {
       setError(err.message || '操作失败');
     } finally {
@@ -43,8 +59,16 @@ export const Login = () => {
         {/* Logo */}
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-white mb-2">CatGlow</h1>
-          <p className="text-gray-400">欢迎回来</p>
+          <p className="text-gray-400">{isLogin ? '欢迎回来' : '加入我们'}</p>
         </div>
+
+        {/* Success Message */}
+        {success && (
+          <div className="mb-4 p-4 bg-green-500/20 border border-green-500 rounded-lg flex items-center gap-3">
+            <CheckCircle className="text-green-500" size={24} />
+            <span className="text-green-400">{success}</span>
+          </div>
+        )}
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -95,7 +119,7 @@ export const Login = () => {
 
           <button
             type="submit"
-            disabled={loading}
+            disabled={loading || !!success}
             className="w-full py-3 bg-pink-500 text-white rounded-lg font-medium hover:bg-pink-600 disabled:opacity-50 flex items-center justify-center gap-2"
           >
             {loading ? (
@@ -115,6 +139,7 @@ export const Login = () => {
             onClick={() => {
               setIsLogin(!isLogin);
               setError('');
+              setSuccess('');
             }}
             className="text-gray-400 hover:text-white text-sm"
           >

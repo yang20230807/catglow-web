@@ -51,7 +51,7 @@ export const Search = () => {
           <div className="grid grid-cols-2 gap-4">
             {videos.map((video) => (
               <div key={video.id} className="bg-gray-900 rounded-lg overflow-hidden">
-                <VideoCard video={video} isActive={false} />
+                <VideoCard video={video} />
                 <div className="p-2">
                   <p className="text-sm line-clamp-2">{video.title}</p>
                 </div>

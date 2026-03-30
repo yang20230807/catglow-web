@@ -1,14 +1,18 @@
 export interface Author {
   id: number;
+  username: string;
   nickname: string;
   avatar: string;
+  bio?: string;
 }
 
 export interface Video {
   id: number;
   title: string;
-  videoUrl: string;
-  coverUrl: string;
+  content?: string;
+  videoUrl?: string;
+  coverUrl?: string;
+  images?: string[];  // 多张图片
   author: Author;
   likeCount: number;
   commentCount: number;
@@ -48,4 +52,25 @@ export interface RegisterRequest {
   username: string;
   password: string;
   nickname?: string;
+}
+
+export interface Comment {
+  id: number;
+  user: Author;
+  postId: number;
+  parentId: number | null;
+  rootId: number | null;
+  content: string;
+  likeCount: number;
+  replyCount: number;
+  replies?: Comment[];
+  createdAt?: string;
+}
+
+export interface Friend {
+  id: number;
+  username: string;
+  nickname: string;
+  avatar: string;
+  isFollowing: boolean;
 }
