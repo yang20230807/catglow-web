@@ -1,7 +1,5 @@
-import { useEffect } from 'react';
 import { Feed } from '../../components/Feed/Feed';
 import { useRecommendFeed } from '../../hooks/useFeed';
-import { useFeedStore } from '../../store';
 
 export const Home = () => {
   const {
@@ -13,22 +11,14 @@ export const Home = () => {
     error,
   } = useRecommendFeed();
 
-  const { setFeedList } = useFeedStore();
-
   // Flatten pages to video list
   const videos = data?.pages.flatMap((page) => page.list) ?? [];
 
-  // Sync to store on load
-  useEffect(() => {
-    if (videos.length > 0) {
-      setFeedList(videos);
-    }
-  }, [videos, setFeedList]);
-
   if (isLoading) {
     return (
-      <div className="h-full flex items-center justify-center bg-black">
-        <p className="text-gray-400">加载中...</p>
+      <div className="h-full flex flex-col items-center justify-center bg-black text-white">
+        <div className="text-2xl mb-4">🎬 CatGlow</div>
+        <div className="text-gray-400">加载中...</div>
       </div>
     );
   }
@@ -36,7 +26,15 @@ export const Home = () => {
   if (error) {
     return (
       <div className="h-full flex items-center justify-center bg-black">
-        <p className="text-red-500">加载失败，请重试</p>
+        <p className="text-red-500">加载失败: {error.message}</p>
+      </div>
+    );
+  }
+
+  if (videos.length === 0) {
+    return (
+      <div className="h-full flex items-center justify-center bg-black text-white">
+        <p className="text-gray-400">暂无视频</p>
       </div>
     );
   }
